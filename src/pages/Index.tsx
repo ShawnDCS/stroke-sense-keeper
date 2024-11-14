@@ -1,6 +1,7 @@
 import PredictionForm from "@/components/PredictionForm";
 import HealthMetrics from "@/components/HealthMetrics";
 import PredictionHistory from "@/components/PredictionHistory";
+import { Card } from "@/components/ui/card";
 
 const Index = () => {
   return (
