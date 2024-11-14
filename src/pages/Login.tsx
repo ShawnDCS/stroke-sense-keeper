@@ -4,12 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { login } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,6 +19,7 @@ const Login = () => {
     const storedUser = localStorage.getItem("user");
     if (storedUser && JSON.parse(storedUser).email === email) {
       localStorage.setItem("isAuthenticated", "true");
+      login(); // Call the login function from AuthContext
       toast({
         title: "Welcome back!",
         description: "You have successfully logged in.",
