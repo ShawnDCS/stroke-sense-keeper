@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useToast } from "@/components/ui/use-toast";
 import PredictionResult from "./PredictionResult";
 
 const PredictionForm = () => {
@@ -13,12 +14,37 @@ const PredictionForm = () => {
     bmi: "",
   });
   const [predictionScore, setPredictionScore] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, this would call an API
-    const riskScore = Math.random() * 100;
-    setPredictionScore(riskScore);
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('http://localhost:5000/predict', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get prediction');
+      }
+
+      const data = await response.json();
+      setPredictionScore(data.prediction * 100);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to get prediction. Please ensure your ML server is running.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -88,8 +114,12 @@ const PredictionForm = () => {
           </div>
         </div>
 
-        <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white">
-          Calculate Risk
+        <Button 
+          type="submit" 
+          className="w-full bg-primary hover:bg-primary/90 text-white"
+          disabled={isLoading}
+        >
+          {isLoading ? "Calculating..." : "Calculate Risk"}
         </Button>
       </form>
 
